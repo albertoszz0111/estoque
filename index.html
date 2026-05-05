@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Controle de Estoque</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-add {
+            background: green;
+            color: white;
+        }
+
+        .btn-remove {
+            background: red;
+            color: white;
+        }
+
+        .filtro {
+            background: #007bff;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .item {
+            background: white;
+            margin: 10px auto;
+            padding: 10px;
+            width: 300px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .baixo {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+<body>
+
+<h1>Estoque</h1>
+
+<button class="filtro" onclick="carregar()">Todos</button>
+<button class="filtro" onclick="carregarCapacetes()">Só Capacetes</button>
+
+<div id="lista"></div>
+
+<script>
+async function carregar() {
+    const res = await fetch('http://localhost:3000/estoque');
+    const dados = await res.json();
+
+    renderizar(dados);
+}
+
+async function carregarCapacetes() {
+    const res = await fetch('http://localhost:3000/capacetes');
+    const dados = await res.json();
+
+    renderizar(dados);
+}
+
+function renderizar(dados) {
+    const lista = document.getElementById('lista');
+    lista.innerHTML = '';
+
+    dados.forEach(item => {
+        const div = document.createElement('div');
+        div.classList.add('item');
+
+        if (item.quantidade <= item.minimo) {
+            div.classList.add('baixo');
+        }
+
+        div.innerHTML = `
+            <strong>${item.nome}</strong><br>
+            Quantidade: ${item.quantidade}<br>
+            <button class="btn-remove" onclick="retirar(${item.id})">-1</button>
+            <button class="btn-add" onclick="adicionar(${item.id})">+1</button>
+        `;
+
+        lista.appendChild(div);
+    });
+}
+
+async function retirar(id) {
+    await fetch(`http://localhost:3000/retirar/${id}`, {
+        method: 'POST'
+    });
+
+    carregar();
+}
+
+async function adicionar(id) {
+    await fetch(`http://localhost:3000/adicionar/${id}`, {
+        method: 'POST'
+    });
+
+    carregar();
+}
+
+carregar();
+</script>
+
+</body>
+</html>
