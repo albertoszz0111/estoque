@@ -31,8 +31,7 @@ const banco = mysql.createConnection({
 
 });
 
-console.log('Tentando conectar no MySQL...');
-
+console.log('CODIGO NOVO RODANDO');
 banco.connect((erro) => {
 
     if (erro) {
