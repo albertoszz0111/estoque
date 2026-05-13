@@ -19,15 +19,15 @@ app.use(express.static(__dirname));
 
 const banco = mysql.createConnection({
 
-    host: process.env.MYSQLHOST,
+    host: 'yamanote.proxy.rlwy.net',
 
-    user: process.env.MYSQLUSER,
+    user: 'root',
 
-    password: process.env.MYSQLPASSWORD,
+    password: 'SaTbDnUXSAOCTnzXaSRwxkxPAFYIMdLF',
 
-    database: process.env.MYSQLDATABASE,
+    database: 'railway',
 
-    port: process.env.MYSQLPORT
+    port: 35078
 
 });
 
