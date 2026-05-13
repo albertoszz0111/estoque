@@ -1,5 +1,8 @@
 let produtos = [];
 
+const API =
+'https://stockcontrol-production-dd48.up.railway.app';
+
 
 // ==========================
 // CARREGAR
@@ -7,14 +10,24 @@ let produtos = [];
 
 async function carregar() {
 
-    const resposta =
-        await fetch('http://localhost:3000/estoque');
+    try {
 
-    produtos = await resposta.json();
+        const resposta =
+            await fetch(`${API}/estoque`);
 
-    gerarCategorias();
+        produtos = await resposta.json();
 
-    renderizar(produtos);
+        gerarCategorias();
+
+        renderizar(produtos);
+
+    } catch (erro) {
+
+        console.log('Erro ao carregar produtos');
+
+        console.log(erro);
+
+    }
 
 }
 
@@ -39,9 +52,11 @@ function gerarCategorias() {
     `;
 
     const categorias = [
+
         ...new Set(
             produtos.map(p => p.categoria)
         )
+
     ];
 
     categorias.forEach(categoria => {
@@ -87,6 +102,7 @@ function renderizar(listaProdutos) {
         const card = document.createElement('div');
 
         card.className =
+
             produto.quantidade <= produto.minimo
             ? 'card baixo'
             : 'card';
@@ -157,6 +173,7 @@ function renderizar(listaProdutos) {
 function filtrar(categoria) {
 
     const filtrados =
+
         produtos.filter(
             p => p.categoria === categoria
         );
@@ -172,14 +189,27 @@ function filtrar(categoria) {
 
 async function adicionar(id) {
 
-    await fetch(
-        `http://localhost:3000/adicionar/${id}`,
-        {
-            method:'POST'
-        }
-    );
+    try {
 
-    carregar();
+        await fetch(
+
+            `${API}/adicionar/${id}`,
+
+            {
+                method:'POST'
+            }
+
+        );
+
+        carregar();
+
+    } catch (erro) {
+
+        console.log('Erro ao adicionar');
+
+        console.log(erro);
+
+    }
 
 }
 
@@ -190,22 +220,35 @@ async function adicionar(id) {
 
 async function retirar(id) {
 
-    const resposta = await fetch(
-        `http://localhost:3000/retirar/${id}`,
-        {
-            method:'POST'
+    try {
+
+        const resposta = await fetch(
+
+            `${API}/retirar/${id}`,
+
+            {
+                method:'POST'
+            }
+
+        );
+
+        if (!resposta.ok) {
+
+            alert('Produto sem estoque');
+
+            return;
+
         }
-    );
 
-    if (!resposta.ok) {
+        carregar();
 
-        alert('Produto sem estoque');
+    } catch (erro) {
 
-        return;
+        console.log('Erro ao retirar');
+
+        console.log(erro);
 
     }
-
-    carregar();
 
 }
 
@@ -215,13 +258,17 @@ async function retirar(id) {
 // ==========================
 
 document
+
 .getElementById('pesquisa')
+
 .addEventListener('input', (e) => {
 
     const valor =
+
         e.target.value.toLowerCase();
 
     const filtrados =
+
         produtos.filter(produto =>
 
             produto.nome
