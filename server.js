@@ -3,94 +3,146 @@ const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-const db = mysql.createConnection({
-    host: 'localhost',
+app.use(express.static(__dirname));
+
+
+// ==========================
+// MYSQL
+// ==========================
+
+const banco = mysql.createConnection({
+
+    host: 'mysql.railway.internal',
     user: 'root',
-    password: '171105',
-    database: 'estoque_db'
+    password: 'SaTbDnUXSAOCTnzXaSRwxkxPAFYIMdLF',
+    database: 'railway'
+
 });
 
-db.connect(err => {
-    if (err) {
-        console.error('Erro ao conectar:', err);
-    } else {
-        console.log('Conectado ao MySQL');
+banco.connect((erro) => {
+
+    if (erro) {
+
+        console.log('Erro MySQL');
+        console.log(erro);
+
+        return;
     }
+
+    console.log('MySQL conectado');
+
 });
 
 
-// =========================
-// ROTAS
-// =========================
+// ==========================
+// LISTAR PRODUTOS
+// ==========================
 
-// listar todos os itens
 app.get('/estoque', (req, res) => {
-    db.query('SELECT * FROM estoque', (err, result) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.json(result);
-        }
-    });
-});
 
+    banco.query(
+        'SELECT * FROM produtos',
+        (erro, resultado) => {
 
-// listar apenas capacetes
-app.get('/capacetes', (req, res) => {
-    db.query("SELECT * FROM estoque WHERE nome LIKE '%Capacete%'", (err, result) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.json(result);
-        }
-    });
-});
+            if (erro) {
 
-
-// retirar (-1)
-app.post('/retirar/:id', (req, res) => {
-    const id = req.params.id;
-
-    db.query(
-        'UPDATE estoque SET quantidade = quantidade - 1 WHERE id = ? AND quantidade > 0',
-        [id],
-        (err, result) => {
-            if (err) {
-                res.status(500).send(err);
-            } else if (result.affectedRows === 0) {
-                res.json({ mensagem: 'Sem estoque disponível' });
-            } else {
-                res.json({ mensagem: 'Item retirado' });
+                res.status(500).send(erro);
+                return;
             }
+
+            res.json(resultado);
+
         }
     );
+
 });
 
 
-// adicionar (+1)
+// ==========================
+// ADICIONAR
+// ==========================
+
 app.post('/adicionar/:id', (req, res) => {
+
     const id = req.params.id;
 
-    db.query(
-        'UPDATE estoque SET quantidade = quantidade + 1 WHERE id = ?',
+    banco.query(
+        'UPDATE produtos SET quantidade = quantidade + 1 WHERE id = ?',
         [id],
-        (err) => {
-            if (err) {
-                res.status(500).send(err);
-            } else {
-                res.json({ mensagem: 'Item adicionado' });
+        (erro) => {
+
+            if (erro) {
+
+                res.status(500).send(erro);
+                return;
             }
+
+            res.send('OK');
+
         }
     );
+
 });
 
 
-// =========================
+// ==========================
+// RETIRAR
+// ==========================
+
+app.post('/retirar/:id', (req, res) => {
+
+    const id = req.params.id;
+
+    banco.query(
+        'SELECT quantidade FROM produtos WHERE id = ?',
+        [id],
+        (erro, resultado) => {
+
+            if (erro) {
+
+                res.status(500).send(erro);
+                return;
+            }
+
+            if (resultado[0].quantidade <= 0) {
+
+                res.status(400).send('Sem estoque');
+                return;
+
+            }
+
+            banco.query(
+                'UPDATE produtos SET quantidade = quantidade - 1 WHERE id = ?',
+                [id],
+                (erro2) => {
+
+                    if (erro2) {
+
+                        res.status(500).send(erro2);
+                        return;
+                    }
+
+                    res.send('OK');
+
+                }
+            );
+
+        }
+    );
+
+});
+
+
+// ==========================
 // SERVIDOR
-// =========================
+// ==========================
+
 app.listen(3000, () => {
+
     console.log('Servidor rodando em http://localhost:3000');
+
 });
