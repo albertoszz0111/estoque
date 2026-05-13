@@ -1,3 +1,5 @@
+console.log('CODIGO NOVO RODANDO');
+
 const express = require('express');
 
 const mysql = require('mysql2');
@@ -11,11 +13,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use(express.static(__dirname));
-
-
-// ==========================
-// MYSQL RAILWAY
-// ==========================
 
 const banco = mysql.createConnection({
 
@@ -31,27 +28,26 @@ const banco = mysql.createConnection({
 
 });
 
-console.log('CODIGO NOVO RODANDO');
 banco.connect((erro) => {
 
     if (erro) {
 
-        console.log('Erro MySQL');
-
+        console.log('ERRO MYSQL');
         console.log(erro);
 
         return;
 
     }
 
-    console.log('MySQL conectado com sucesso');
+    console.log('MYSQL CONECTADO');
 
 });
 
+app.get('/', (req, res) => {
 
-// ==========================
-// LISTAR PRODUTOS
-// ==========================
+    res.send('API ONLINE');
+
+});
 
 app.get('/estoque', (req, res) => {
 
@@ -62,8 +58,6 @@ app.get('/estoque', (req, res) => {
         (erro, resultado) => {
 
             if (erro) {
-
-                console.log(erro);
 
                 res.status(500).send(erro);
 
@@ -79,101 +73,10 @@ app.get('/estoque', (req, res) => {
 
 });
 
-
-// ==========================
-// ADICIONAR
-// ==========================
-
-app.post('/adicionar/:id', (req, res) => {
-
-    const id = req.params.id;
-
-    banco.query(
-
-        'UPDATE produtos SET quantidade = quantidade + 1 WHERE id = ?',
-
-        [id],
-
-        (erro) => {
-
-            if (erro) {
-
-                console.log(erro);
-
-                res.status(500).send(erro);
-
-                return;
-
-            }
-
-            res.send('OK');
-
-        }
-
-    );
-
-});
-
-
-// ==========================
-// RETIRAR
-// ==========================
-
-app.post('/retirar/:id', (req, res) => {
-
-    const id = req.params.id;
-
-    banco.query(
-
-        `
-        UPDATE produtos
-        SET quantidade = quantidade - 1
-        WHERE id = ?
-        AND quantidade > 0
-        `,
-
-        [id],
-
-        (erro) => {
-
-            if (erro) {
-
-                console.log(erro);
-
-                res.status(500).send(erro);
-
-                return;
-
-            }
-
-            res.send('OK');
-
-        }
-
-    );
-
-});
-
-
-// ==========================
-// TESTE
-// ==========================
-
-app.get('/', (req, res) => {
-
-    res.send('API ONLINE');
-
-});
-
-
-// ==========================
-// PORTA RAILWAY
-// ==========================
-
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
 
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`PORTA ${PORT}`);
 
 });
