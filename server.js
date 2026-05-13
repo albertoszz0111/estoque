@@ -31,6 +31,8 @@ const banco = mysql.createConnection({
 
 });
 
+console.log('Tentando conectar no MySQL...');
+
 banco.connect((erro) => {
 
     if (erro) {
@@ -43,7 +45,7 @@ banco.connect((erro) => {
 
     }
 
-    console.log('MySQL conectado');
+    console.log('MySQL conectado com sucesso');
 
 });
 
@@ -61,6 +63,8 @@ app.get('/estoque', (req, res) => {
         (erro, resultado) => {
 
             if (erro) {
+
+                console.log(erro);
 
                 res.status(500).send(erro);
 
@@ -94,6 +98,8 @@ app.post('/adicionar/:id', (req, res) => {
         (erro) => {
 
             if (erro) {
+
+                console.log(erro);
 
                 res.status(500).send(erro);
 
@@ -133,6 +139,8 @@ app.post('/retirar/:id', (req, res) => {
 
             if (erro) {
 
+                console.log(erro);
+
                 res.status(500).send(erro);
 
                 return;
@@ -144,6 +152,17 @@ app.post('/retirar/:id', (req, res) => {
         }
 
     );
+
+});
+
+
+// ==========================
+// TESTE
+// ==========================
+
+app.get('/', (req, res) => {
+
+    res.send('API ONLINE');
 
 });
 
